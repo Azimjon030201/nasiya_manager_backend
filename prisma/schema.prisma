@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id        String        @id @default(uuid())
+  phone     String        @unique
+  password  String
+  fullName  String
+  createdAt DateTime      @default(now())
+
+  shops     ShopMember[]
+  ownedShops Shop[]       @relation("ShopOwner")
+}
+
+model Shop {
+  id        String        @id @default(uuid())
+  name      String
+  address   String?
+  ownerId   String
+  createdAt DateTime      @default(now())
+
+  owner     User          @relation("ShopOwner", fields: [ownerId], references: [id])
+  members   ShopMember[]
+  customers Customer[]
+}
+
+model ShopMember {
+  id      String   @id @default(uuid())
+  userId  String
+  shopId  String
+  role    ShopRole @default(CASHIER)
+
+  user    User     @relation(fields: [userId], references: [id])
+  shop    Shop    @relation(fields: [shopId], references: [id])
+
+  @@unique([userId, shopId])
+}
+
+model Customer {
+  id           String           @id @default(uuid())
+  shopId       String
+  firstName    String
+  lastName     String
+  phone        String
+  address      String?
+  photoUrl     String?
+  isBlacklisted Boolean         @default(false)
+  createdAt    DateTime         @default(now())
+
+  shop         Shop             @relation(fields: [shopId], references: [id])
+  debts        Debt[]
+  notifications NotificationLog[]
+
+  @@index([shopId, phone])
+}
+
+model Debt {
+  id         String       @id @default(uuid())
+  customerId String
+  totalAmount Decimal
+  paidAmount  Decimal      @default(0)
+  status      DebtStatus   @default(ACTIVE)
+  dueDate     DateTime
+  note       String?
+  createdAt  DateTime      @default(now())
+
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  items      DebtItem[]
+  payments   Payment[]
+}
+
+model DebtItem {
+  id       String   @id @default(uuid())
+  debtId   String
+  name     String
+  quantity Int      @default(1)
+  price    Decimal
+
+  debt     Debt     @relation(fields: [debtId], references: [id])
+}
+
+model Payment {
+  id      String        @id @default(uuid())
+  debtId  String
+  amount  Decimal
+  method  PaymentMethod @default(CASH)
+  paidAt  DateTime      @default(now())
+
+  debt    Debt          @relation(fields: [debtId], references: [id])
+}
+
+model NotificationLog {
+  id         String   @id @default(uuid())
+  customerId String
+  message    String
+  sentAt     DateTime @default(now())
+  status     String
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+}
+
+enum ShopRole {
+  OWNER
+  CASHIER
+}
+
+enum DebtStatus {
+  ACTIVE
+  PARTIALLY_PAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  TRANSFER
+}
