@@ -1,13 +1,12 @@
-import {  Injectable, } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import {PrismaService} from '../prisma/prismaservice'
-import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
+import { Injectable } from '@nestjs/common';
+
+
 @Injectable()
 export class AuthService {
-  private otpStore = new Map<string, { code: string; expiresAt: number; registerData: RegisterDto }>();
+  create(createAuthDto: CreateAuthDto) {
+    return 'This action adds a new auth';
+  }
 
-  constructor(private prisma: PrismaService) {}
   findAll() {
     return `This action returns all auth`;
   }
