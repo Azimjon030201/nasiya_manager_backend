@@ -25,7 +25,10 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "class-validator": "^0.15.1",
+<<<<<<< HEAD
+=======
     "@prisma/client": "^6.19.3",
+>>>>>>> 09efa55ed29d5a29fef5b6d24e52bbb73030f733
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
