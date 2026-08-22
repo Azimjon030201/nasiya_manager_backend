@@ -1,6 +1,15 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create.customer.dto';
+import { QueryCustomerDto } from './dto/query.customer.dto';
 import { UpdateBlacklistDto } from './dto/update.blacklist.dto';
 
 @Controller('customers')
@@ -13,8 +22,8 @@ export class CustomersController {
   }
 
   @Get()
-  findAll(@Query('search') search?: string, @Query('filter') filter?: string) {
-    return this.customersService.findAll(search, filter);
+  findAll(@Query() query: QueryCustomerDto) {
+    return this.customersService.findAll(query);
   }
 
   @Get(':id')
