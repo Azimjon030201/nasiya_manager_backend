@@ -1,25 +1,60 @@
-import { Injectable } from '@nestjs/common';
-
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(private prisma: PrismaService) {}
+
+  async register(registerDto: RegisterDto) {
+    const { phone, password, fullName } = registerDto;
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phone },
+    });
+
+    if (existingUser) {
+      throw new UnauthorizedException('Bu telefon raqam allaqachon mavjud');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        phone,
+        password: hashedPassword,
+        fullName,
+      },
+    });
+
+    return {
+      message: 'Ro‘yxatdan o‘tish muvaffaqiyatli',
+      user,
+    };
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(loginDto: LoginDto) {
+    const { phone, password } = loginDto;
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const user = await this.prisma.user.findUnique({
+      where: { phone },
+    });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!user) {
+      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+    }
+
+    return {
+      message: 'Login muvaffaqiyatli',
+      user,
+    };
   }
 }
