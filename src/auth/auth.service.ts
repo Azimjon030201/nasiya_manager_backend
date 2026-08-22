@@ -1,26 +1,60 @@
-import {  Injectable, } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
-import {PrismaService} from '../prisma/prismaservice'
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class AuthService {
-  private otpStore = new Map<string, { code: string; expiresAt: number; registerData: RegisterDto }>();
-
   constructor(private prisma: PrismaService) {}
-  findAll() {
-    return `This action returns all auth`;
+
+  async register(registerDto: RegisterDto) {
+    const { phone, password, fullName } = registerDto;
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phone },
+    });
+
+    if (existingUser) {
+      throw new UnauthorizedException('Bu telefon raqam allaqachon mavjud');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        phone,
+        password: hashedPassword,
+        fullName,
+      },
+    });
+
+    return {
+      message: 'Ro‘yxatdan o‘tish muvaffaqiyatli',
+      user,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async login(loginDto: LoginDto) {
+    const { phone, password } = loginDto;
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const user = await this.prisma.user.findUnique({
+      where: { phone },
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    if (!user) {
+      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+    }
+
+    return {
+      message: 'Login muvaffaqiyatli',
+      user,
+    };
   }
 }
