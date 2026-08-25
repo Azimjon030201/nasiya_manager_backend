@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async register(registerDto: RegisterDto) {
     const { phone, password, fullName } = registerDto;
@@ -29,9 +33,15 @@ export class AuthService {
       },
     });
 
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      phone: user.phone,
+    });
+
     return {
       message: ' muvaffaqiyatli',
       user,
+      access_token: accessToken,
     };
   }
 
@@ -52,9 +62,15 @@ export class AuthService {
       throw new UnauthorizedException('Telefon yoki parol xato !');
     }
 
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      phone: user.phone,
+    });
+
     return {
       message: 'Login muvaffaqiyatli ',
       user,
+      access_token: accessToken,
     };
   }
 }
