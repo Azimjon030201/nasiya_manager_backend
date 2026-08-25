@@ -5,6 +5,9 @@ import { PrismaClient } from '@prisma/client/extension';
 export class PrismaService 
 extends PrismaClient
 implements OnModuleInit{
+    shop: any;
+  shopMember: any;
+  user: any;
     async onModuleInit(){
         await this.$connect();
     }

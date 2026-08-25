@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req } from '@nestjs/common';
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { AddMemberDto } from './dto/add-member.dto';
@@ -7,7 +7,7 @@ import { AddMemberDto } from './dto/add-member.dto';
 export class ShopsController {
   constructor(
     private readonly shopsService: ShopsService,
-  ) { }
+  ) {}
 
   @Post()
   createShop(
@@ -18,6 +18,13 @@ export class ShopsController {
       req.user.id,
       dto,
     );
+  }
+
+  @Get('search')
+  searchShops(
+    @Query('q') query: string,
+  ) {
+    return this.shopsService.searchShops(query);
   }
 
   @Post(':id/members')

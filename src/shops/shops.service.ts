@@ -5,7 +5,7 @@ import { AddMemberDto } from './dto/add-member.dto';
 
 @Injectable()
 export class ShopsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async createShop(userId: string, dto: CreateShopDto) {
     const shop = await this.prisma.shop.create({
@@ -24,6 +24,19 @@ export class ShopsService {
     });
 
     return shop;
+  }
+
+  async searchShops(query: string) {
+    const shops = await this.prisma.shop.findMany({
+      where: {
+        name: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    return shops;
   }
 
   async addMember(
