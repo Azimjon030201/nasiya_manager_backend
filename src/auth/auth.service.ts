@@ -53,7 +53,7 @@ export class AuthService {
     }
 
     return {
-      message: 'Login muvaffaqiyatli',
+      message: 'Login muvaffaqiyatli ',
       user,
     };
   }
