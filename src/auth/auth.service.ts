@@ -16,7 +16,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new UnauthorizedException('Bu telefon raqam allaqachon mavjud');
+      throw new UnauthorizedException('Bu telefon royxatdan otgan !');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,7 +30,7 @@ export class AuthService {
     });
 
     return {
-      message: 'Ro‘yxatdan o‘tish muvaffaqiyatli',
+      message: ' muvaffaqiyatli',
       user,
     };
   }
@@ -43,13 +43,13 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+      throw new UnauthorizedException('Telefon yoki parol xato !');
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
-      throw new UnauthorizedException('Telefon yoki parol noto‘g‘ri');
+      throw new UnauthorizedException('Telefon yoki parol xato !');
     }
 
     return {
