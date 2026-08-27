@@ -5,6 +5,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PrismaModule } from '../prisma/prisma.module';
 
 @Module({
+   imports: [
+    JwtModule.register({
+      secret: 'my-secret-key',
+      signOptions: {
+        expiresIn: '1d',
+      },
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService],
   imports:[PrismaModule]
